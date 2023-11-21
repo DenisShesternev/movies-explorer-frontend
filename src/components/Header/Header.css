@@ -1,0 +1,35 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 70px;
+  }
+  
+  .header__link {
+    display: flex;
+  }
+  
+  .header__logo {
+    transition: opacity .2s linear;
+  }
+  
+  .header__logo:hover {
+    opacity: .7;
+    cursor: pointer;
+  }
+  
+  .header__auth {
+    background-color: #F3C1F8;
+  }
+  
+  @media screen and (max-width: 800px) {
+    .header {
+      padding: 18px 30px;
+    }
+  }
+  
+  @media screen and (max-width: 500px) {
+    .header {
+      padding: 18px 14px;
+    }
+  }
