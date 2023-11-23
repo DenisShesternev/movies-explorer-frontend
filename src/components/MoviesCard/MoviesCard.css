@@ -1,0 +1,139 @@
+.card {
+  position: relative;
+  padding: 0;
+}
+
+.card__image {
+  width: 360px;
+  height: 201px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.card__element {
+  display: flex;
+  justify-content: space-between;
+  min-height: 44px;
+  margin: 12px 15px 0 14px;
+}
+
+.card__title {
+  max-width: 220px;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin: 0;
+}
+
+.card__duration {
+  color: #A0A0A0;
+  background: #F9F9F9;
+  text-align: center;
+  width: 52px;
+  height: 18px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 10px;
+  margin: 0;
+  padding-top: 3px;
+}
+
+.card__buttons {
+  position: absolute;
+  right: 14px;
+  top: 16px;
+  margin: -2px 0 0;
+}
+
+.card__save {
+  display: none;
+}
+
+.card__button {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  height: 21px;
+  width: 21px;
+  padding: 0;
+  border: none;
+  border-radius: 36px;
+  transition: opacity .2s linear;
+}
+
+.card__image:hover {
+
+  cursor: pointer;
+}
+
+.card:hover .card__save {
+  display: contents;
+  color: #000;
+  text-align: center;
+  font-family: Inter;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 9px;
+}
+
+.card:hover .card__button {
+  height: 21px;
+  width: 72px;
+  opacity: .7;
+  cursor: pointer;
+  border-radius: 30px;
+  background: #F9F9F9;
+}
+
+.card__button_inactive {
+  background: none;
+}
+
+.card__button_active {
+  background: #f9f9f9 url(../../images/card__button_active.svg) center no-repeat;
+}
+
+.card__button_delete {
+  background: none;
+}
+
+.card:hover .card__button_delete {
+  background: #f9f9f9 url(../../images/card__button_delete.png) center no-repeat;
+  width: 21px;
+  height: 21px;
+}
+
+@media screen and (max-width: 800px) {
+  .card__image {
+    width: 339px;
+    height: 190px;
+  }
+
+  .card__title {
+    max-width: 250px;
+  }
+
+  .card__element {
+    margin: 21px 0 0;
+  }
+}
+
+@media screen and (max-width: 500px) {
+
+  .card__element {
+    margin: 13px 0 0;
+  }
+
+  .card__title {
+    font-size: 12px;
+    line-height: normal;
+  }
+
+  .card__image {
+    width: 300px;
+    height: 168px;
+  }
+}
