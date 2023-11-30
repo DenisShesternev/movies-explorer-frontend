@@ -57,7 +57,7 @@
   cursor: pointer;
 }
 
-.search__films {
+.search__movies {
   margin: 0 0 0 14px;
   padding-right: 24px;
   font-size: 13px;
@@ -129,7 +129,7 @@
     padding: 0 44px;
   }
 
-  .search__films {
+  .search__movies {
     margin-left: 15px;
     padding-right: 20px;
   }
@@ -172,7 +172,7 @@
     display: none;
   }
 
-  .search__films {
+  .search__movies {
     font-size: 11px;
     line-height: 18px;
     margin-left: 14px;

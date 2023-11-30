@@ -2,19 +2,28 @@ import './Form.css';
 import { Link } from 'react-router-dom';
 import logo from '../../images/logo.svg';
 
-function Form(props) {
-    const { header, children, submit, question, path, link } = props;
-
+function Form({ onSubmit, isValid, title, children, submit, question, path, link, message }) {
     return (
         <section className="form">
             <div className="form__container">
                 <Link to="/" className="form__link">
-                    <img className="form__logo" src={logo} alt="Логотип Movies Explorer"></img>
+                    <img
+                        className="form__logo"
+                        src={logo}
+                        alt="Логотип Movies Explorer">
+                    </img>
                 </Link>
-                <h2 className="form__title">{header}</h2>
-                <form className="form__inputs">
-                    <div className="form__items"> {children} </div>
-                    <button type="submit" className="form__button" disabled>
+                <h2 className="form__title">
+                    {title}
+                </h2>
+                <form className="form__inputs" onSubmit={onSubmit}>
+                    <div className="form__items">
+                        {children}
+                    </div>
+                    <p className="form__text-error">
+                        {message}
+                    </p>
+                    <button className={`form__button ${isValid ? "" : "form__button_disabled"}`} type="submit" disabled={!isValid}>
                         {submit}
                     </button>
                 </form>

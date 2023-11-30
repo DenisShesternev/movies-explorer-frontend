@@ -37,6 +37,16 @@
     opacity: .7;
     cursor: pointer;
   }
+
+  .cards__text-error {
+    margin: 0;
+    padding: 20px 0;
+    text-align: center;
+    color: #8b8b8b;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 35px;
+  }
   
   @media all and (max-width: 800px) {
     .cards {
