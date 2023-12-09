@@ -159,8 +159,7 @@ const Movies = () => {
 
     if (localStorageMovies) {
       const filterData = JSON.parse(localStorageMovies);
-      const spliceData = filterData.splice(0, MoviesCount[0]);
-      setMoviesShowed(spliceData);
+      setMoviesShowed(filterData.splice(0, MoviesCount[0]));
       setMovies(filterData);
       setPreloader(false);
     }
@@ -168,8 +167,7 @@ const Movies = () => {
     if (localStorageMoviesTumbler === 'true') {
       setMoviesTumbler(localStorageMoviesTumbler === 'true');
       const filterData = JSON.parse(localStorageMoviesShort);
-      const spliceData = filterData.splice(0, MoviesCount[0]);
-      setMoviesShowed(spliceData);
+      setMoviesShowed(filterData);
       setMovies(filterData);
       setPreloader(false);
     }
