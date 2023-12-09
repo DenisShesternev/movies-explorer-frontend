@@ -5,18 +5,23 @@ import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import Preloader from '../Preloader/Preloader';
 import moviesApi from '../../utils/MoviesApi';
 import mainApi from '../../utils/MainApi.js';
+import { DURATION_SHORTS } from '../../utils/constants';
 
 const Movies = () => {
-  const [movies, setMovies] = useState(null);
   const [moviesSaved, setMoviesSaved] = useState(null);
   const [preloader, setPreloader] = useState(false);
   const [errorText, setErrorText] = useState('');
-  const [moviesTumbler, setMoviesTumbler] = useState(false);
   const [moviesInputSearch, setMoviesInputSearch] = useState('');
-  const [MoviesCount, setMoviesCount] = useState([]);
+  const [movies, setMovies] = useState(null);
+  const [moviesTumbler, setMoviesTumbler] = useState(false);
   const [moviesShowed, setMoviesShowed] = useState(null);
-  const [moviesWithTumbler, setMoviesWithTumbler] = useState([]);
-  const [moviesShowedWithTumbler, setMoviesShowedWithTumbler] = useState([]);
+
+  const localStorageMovies = localStorage.getItem('movies');
+  const localStorageMoviesShort = localStorage.getItem('moviesShort');
+  const localStorageMoviesTumbler = localStorage.getItem('moviesTumbler');
+  const localStorageMoviesInputSearch = localStorage.getItem('moviesInputSearch');
+
+  const [MoviesCount, setMoviesCount] = useState([]);
 
   useEffect(() => {
     setMoviesCount(getMoviesCount());
@@ -33,9 +38,9 @@ const Movies = () => {
     const clientWidth = document.documentElement.clientWidth;
     const MoviesCountConfig = {
       '1200': [12, 4],
-      '900': [9, 3],
-      '768': [8, 2],
-      '240': [5, 2],
+      '800': [8, 2],
+      '768': [8, 1],
+      '0': [5, 1],
     };
 
     Object.keys(MoviesCountConfig)
@@ -51,68 +56,10 @@ const Movies = () => {
 
   function handleMore() {
     const spliceMovies = movies;
-    const newMoviesShowed = moviesShowed.concat(spliceMovies.splice(0, MoviesCount[1]));
+    const newMoviesShowed = moviesShowed.concat(spliceMovies.splice(0, MoviesCount[0]));
     setMoviesShowed(newMoviesShowed);
     setMovies(spliceMovies);
   }
-
-  async function handleGetMovies(inputSearch) {
-    setMoviesTumbler(false);
-    localStorage.setItem('moviesTumbler', false);
-
-    if (!inputSearch) {
-      setErrorText('Нужно ввести ключевое слово');
-      return false;
-    }
-
-    setErrorText('');
-    setPreloader(true);
-
-    try {
-      const data = await moviesApi.getMovies();
-      let filterData = data.filter(({ nameRU }) => nameRU.toLowerCase().includes(inputSearch.toLowerCase()));
-      localStorage.setItem('movies', JSON.stringify(filterData));
-      localStorage.setItem('moviesInputSearch', inputSearch);
-
-      const spliceData = filterData.splice(0, MoviesCount[0]);
-      setMoviesShowed(spliceData);
-      setMovies(filterData);
-      setMoviesShowedWithTumbler(spliceData);
-      setMoviesWithTumbler(filterData);
-    } catch (err) {
-      setErrorText(
-        'Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз'
-      );
-
-      setMovies([]);
-      localStorage.removeItem('movies');
-      localStorage.removeItem('moviesTumbler');
-      localStorage.removeItem('moviesInputSearch');
-    } finally {
-      setPreloader(false);
-    }
-  }
-
-  async function handleGetMoviesTumbler(tumbler) {
-    let filterDataShowed = [];
-    let filterData = [];
-
-    if (tumbler) {
-      setMoviesShowedWithTumbler(moviesShowed);
-      setMoviesWithTumbler(movies);
-      filterDataShowed = moviesShowed.filter(({ duration }) => duration <= 40);
-      filterData = movies.filter(({ duration }) => duration <= 40);
-    } else {
-      filterDataShowed = moviesShowedWithTumbler;
-      filterData = moviesWithTumbler;
-    }
-
-    localStorage.setItem('movies', JSON.stringify(filterDataShowed.concat(filterData)));
-    localStorage.setItem('moviesTumbler', tumbler);
-    setMoviesShowed(filterDataShowed);
-    setMovies(filterData);
-  }
-
   async function savedMoviesToggle(movie, favorite) {
     if (favorite) {
       const objMovie = {
@@ -146,43 +93,106 @@ const Movies = () => {
     }
   }
 
+  async function handleGetMovies(inputSearch) {
+    if (!inputSearch) {
+      setErrorText('Нужно ввести ключевое слово');
+      return false;
+    }
+
+    setErrorText('');
+    setPreloader(true);
+    const data = await moviesApi.getMovies();
+    const filterData = data.filter(({ nameRU }) => nameRU.toLowerCase().includes(inputSearch.toLowerCase()));
+    localStorage.setItem('movies', JSON.stringify(filterData));
+    const filterDataShort = filterData.filter(({ duration }) => duration <= DURATION_SHORTS);
+    localStorage.setItem('moviesShort', JSON.stringify(filterDataShort));
+    localStorage.setItem('moviesInputSearch', inputSearch);
+    try {
+      if (localStorageMoviesTumbler === 'true') {
+        const spliceData = filterDataShort.splice(0, MoviesCount[0]);
+        setMoviesShowed(spliceData);
+        setMovies(filterDataShort);
+        setMoviesTumbler(true);
+      } else {
+        const spliceData = filterData.splice(0, MoviesCount[0]);
+        setMoviesShowed(spliceData);
+        setMovies(filterData);
+        setMoviesTumbler(false);
+      }
+    } catch (err) {
+      setErrorText(
+        'Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз'
+      );
+
+      setMovies([]);
+      localStorage.removeItem('movies');
+      localStorage.removeItem('moviesTumbler');
+      localStorage.removeItem('moviesInputSearch');
+    } finally {
+      setPreloader(false);
+    }
+  }
+
+  function handleGetMoviesTumbler(tumbler) {
+    if (tumbler) {
+      const filterDataShowed = moviesShowed.filter(({ duration }) => duration <= DURATION_SHORTS);
+      const filterData = movies.filter(({ duration }) => duration <= DURATION_SHORTS);
+      localStorage.setItem('moviesShort', JSON.stringify(filterDataShowed.concat(filterData)));
+      setMoviesShowed(filterDataShowed);
+      setMovies(filterData);
+    } else {
+      const filterData = JSON.parse(localStorageMovies);
+      setMoviesShowed(filterData.splice(0, MoviesCount[0]));
+      setMovies(filterData);
+    }
+    localStorage.setItem('moviesTumbler', tumbler);
+
+  }
   useEffect(() => {
     mainApi.getMovies()
       .then((data) => {
         setMoviesSaved(data);
       })
       .catch((err) => {
-        console.log(`Ошибка сервера ${err}`);
+        console.log(`Ошибка ${err}`)
       });
-
-    const localStorageMovies = localStorage.getItem('movies');
 
     if (localStorageMovies) {
       const filterData = JSON.parse(localStorageMovies);
-      setMoviesShowed(filterData.splice(0, getMoviesCount()[0]));
+      setMoviesShowed(filterData.splice(0, MoviesCount[0]));
       setMovies(filterData);
       setPreloader(false);
     }
 
-    const localStorageMoviesTumbler = localStorage.getItem('moviesTumbler');
-    const localStorageMoviesInputSearch = localStorage.getItem('moviesInputSearch');
-
-    if (localStorageMoviesTumbler) {
+    if (localStorageMoviesTumbler === 'true') {
       setMoviesTumbler(localStorageMoviesTumbler === 'true');
+      const filterData = JSON.parse(localStorageMoviesShort);
+      setMoviesShowed(filterData.splice(0, MoviesCount[0]));
+      setMovies(filterData);
+      setPreloader(false);
     }
 
     if (localStorageMoviesInputSearch) {
       setMoviesInputSearch(localStorageMoviesInputSearch);
     }
-  }, []);
+  }, [MoviesCount, localStorageMovies, localStorageMoviesInputSearch, localStorageMoviesShort, localStorageMoviesTumbler]);
 
   return (
     <div className="movies">
-      <SearchForm handleGetMovies={handleGetMovies} moviesTumbler={moviesTumbler} moviesInputSearch={moviesInputSearch} handleGetMoviesTumbler={handleGetMoviesTumbler} />
+      <SearchForm
+        handleGetMovies={handleGetMovies}
+        moviesTumbler={moviesTumbler}
+        moviesInputSearch={moviesInputSearch}
+        handleGetMoviesTumbler={handleGetMoviesTumbler} />
       {preloader && <Preloader />}
       {errorText && <div className="movies__text-error">{errorText}</div>}
       {!preloader && !errorText && movies !== null && moviesSaved !== null && moviesShowed !== null && (
-        <MoviesCardList handleMore={handleMore} moviesRemains={movies} movies={moviesShowed} savedMoviesToggle={savedMoviesToggle} moviesSaved={moviesSaved} />
+        <MoviesCardList
+          handleMore={handleMore}
+          moviesRemains={movies}
+          movies={moviesShowed}
+          savedMoviesToggle={savedMoviesToggle}
+          moviesSaved={moviesSaved} />
       )}
     </div>
   );

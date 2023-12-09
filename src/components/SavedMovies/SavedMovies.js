@@ -4,116 +4,128 @@ import SearchForm from '../SearchForm/SearchForm';
 import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import Preloader from '../Preloader/Preloader';
 import mainApi from '../../utils/MainApi.js';
+import { DURATION_SHORTS } from '../../utils/constants';
 
 const SavedMovies = () => {
   const [movies, setMovies] = useState(null);
   const [preloader, setPreloader] = useState(false);
   const [errorText, setErrorText] = useState('');
-  const [moviesTumbler, setMoviesTumbler] = useState(false);
+  const [savedMoviesTumbler, setSavedMoviesTumbler] = useState(false);
   const [moviesInputSearch, setMoviesInputSearch] = useState('');
-  const [moviesShowed, setMoviesShowed] = useState([]);
-  const [moviesWithTumbler, setMoviesWithTumbler] = useState([]);
-  const [moviesShowedWithTumbler, setMoviesShowedWithTumbler] = useState([]);
 
-  async function handleGetMovies(inputSearch, tumbler) {
-    setErrorText('');
-    setPreloader(true);
+  const localStorageSavedMoviesTumbler = localStorage.getItem('savedMoviesTumbler');
+  const localStorageSavedMovies = localStorage.getItem('savedMovies');
+  const localStorageSavedMoviesShort = localStorage.getItem('savedMoviesShort');
+  const localStorageSavedSearchMovies = localStorage.getItem('savedMoviesSearch');
+  const localStorageMoviesInputSearch = localStorage.getItem('savedMoviesInputSearch');
 
-    try {
-      const data = movies;
-      let filterData = data.filter(({ nameRU }) => nameRU.toLowerCase().includes(inputSearch.toLowerCase()));
-      setMoviesShowed(filterData);
+  function handleGetMovies(inputSearch) {
+    if (!inputSearch && localStorageSavedMoviesTumbler === 'false') {
+      localStorage.setItem('savedMoviesInputSearch', inputSearch)
+      setMoviesInputSearch(inputSearch)
+      const data = JSON.parse(localStorageSavedMovies)
+      setMovies(data);
+    }
+    if (!inputSearch && localStorageSavedMoviesTumbler === 'true') {
+      localStorage.setItem('savedMoviesInputSearch', inputSearch)
+      setMoviesInputSearch(inputSearch)
+      const data = JSON.parse(localStorageSavedMoviesShort)
+      setMovies(data);
+    }
+    else {
+      localStorage.setItem('savedMoviesInputSearch', inputSearch)
+      setMoviesInputSearch(inputSearch)
+      setErrorText('');
+      setPreloader(true);
+      const data = JSON.parse(localStorageSavedMovies);
+      const filterData = data.filter(({ nameRU }) => nameRU.toLowerCase().includes(inputSearch.toLowerCase()));
+      localStorage.setItem('savedMoviesSearch', JSON.stringify(filterData));
+      const filterDataShort = filterData.filter(({ duration }) => duration <= DURATION_SHORTS);
+      localStorage.setItem('savedMoviesShort', JSON.stringify(filterDataShort));
+      try {
+        if (localStorageSavedMoviesTumbler === 'true') {
+          setMovies(filterDataShort);
+          setSavedMoviesTumbler(true);
+        } else {
+          setMovies(filterData);
+          setSavedMoviesTumbler(false);
+        }
+      } catch (err) {
+        setErrorText(
+          'Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз'
+        );
 
-      if (inputSearch) {
-        localStorage.setItem('savedMovies', JSON.stringify(filterData));
-        localStorage.setItem('savedMoviesTumbler', tumbler);
-        localStorage.setItem('savedMoviesInputSearch', inputSearch);
-      } else {
+        setMovies([]);
         localStorage.removeItem('savedMovies');
         localStorage.removeItem('savedMoviesTumbler');
+        localStorage.removeItem('savedMoviesShort');
+        localStorage.removeItem('savedMoviesSearch');
         localStorage.removeItem('savedMoviesInputSearch');
-      }
-    } catch (err) {
-      setErrorText(
-        'Во время запроса произошла ошибка. Возможно, проблема с соединением или сервер недоступен. Подождите немного и попробуйте ещё раз'
-      );
-
-      setMovies([]);
-      localStorage.removeItem('savedMovies');
-      localStorage.removeItem('savedMoviesTumbler');
-      localStorage.removeItem('savedMoviesInputSearch');
-    } finally {
-      setPreloader(false);
-    }
-  }
-
-  async function savedMoviesToggle(movie, favorite) {
-    if (!favorite) {
-      try {
-        await mainApi.deleteMovies(movie._id);
-        const newMovies = await mainApi.getMovies();
-        setMoviesShowed(newMovies);
-        setMovies(newMovies);
-      } catch (err) {
-        console.log('Во время удаления фильма произошла ошибка.');
+      } finally {
+        setPreloader(false);
       }
     }
   }
 
-  async function handleGetMoviesTumbler(tumbler) {
-    let filterDataShowed = [];
-    let filterData = [];
-
-    if (tumbler) {
-      setMoviesShowedWithTumbler(moviesShowed);
-      setMoviesWithTumbler(movies);
-      filterDataShowed = moviesShowed.filter(({ duration }) => duration <= 40);
-      filterData = movies.filter(({ duration }) => duration <= 40);
-    } else {
-      filterDataShowed = moviesShowedWithTumbler;
-      filterData = moviesWithTumbler;
-    }
-    setMoviesShowed(filterDataShowed);
-    setMovies(filterData);
-  }
-
-  
- async function savedMoviesLocal() {
-  const localStorageMovies = localStorage.getItem('savedMovies');
-  if (localStorageMovies) {
-    setMovies(JSON.parse(localStorageMovies));
-    const localStorageMoviesTumbler = localStorage.getItem('savedMoviesTumbler');
-    const localStorageMoviesInputSearch = localStorage.getItem('savedMoviesInputSearch');
-
-    if (localStorageMoviesTumbler) {
-      setMoviesTumbler(localStorageMoviesTumbler === 'true');
-    }
-    if (localStorageMoviesInputSearch) {
-      setMoviesInputSearch(localStorageMoviesInputSearch);
-    }
-  } else {
+  async function savedMoviesToggle(movie) {
     try {
-      const data = await mainApi.getMovies();
-      setMovies(data);
-      setMoviesShowed(data);
+      await mainApi.deleteMovies(movie._id);
+      const newMovies = await mainApi.getMovies();
+
+      const filterData = newMovies.filter(({ duration }) => duration <= DURATION_SHORTS);
+      localStorage.setItem('savedMoviesShort', JSON.stringify(filterData));
+      localStorage.setItem('savedMovies', JSON.stringify(newMovies));
+
+      if (localStorageSavedMoviesTumbler === 'true') {
+        setMovies(filterData);
+        setMoviesInputSearch('')
+      }
+      else {
+        setMovies(newMovies);
+        setMoviesInputSearch('')
+      }
     } catch (err) {
-      console.log(`Ошибка сервера ${err}`);
+      console.log('Во время удаления фильма произошла ошибка.');
     }
   }
-  };
+
+  function handleGetMoviesTumbler(tumbler) {
+    if (tumbler) {
+      const filterData = movies.filter(({ duration }) => duration <= DURATION_SHORTS);
+      localStorage.setItem('savedMoviesShort', JSON.stringify(filterData));
+      setMovies(filterData);
+    }
+    else if (!localStorageMoviesInputSearch && !tumbler) {
+      const filterData = JSON.parse(localStorageSavedMovies);
+      setMovies(filterData);
+    } else if (localStorageMoviesInputSearch && !tumbler) {
+      const filterData = JSON.parse(localStorageSavedSearchMovies);
+      setMovies(filterData);
+    }
+    localStorage.setItem('savedMoviesTumbler', tumbler);
+  }
 
   useEffect(() => {
-savedMoviesLocal()
+    mainApi.getMovies()
+      .then((data) => {
+        setMovies(data);
+        localStorage.setItem('savedMovies', JSON.stringify(data));
+        console.log('почему руботаем тут?')
+      })
+      .catch((err) => {
+        console.log(`Ошибка ${err}`)
+      });
+
   }, []);
 
 
   return (
     <div className="saved-movies">
-      <SearchForm handleGetMovies={handleGetMovies} moviesTumbler={moviesTumbler} moviesInputSearch={moviesInputSearch} handleGetMoviesTumbler={handleGetMoviesTumbler}/>
+      <SearchForm handleGetMovies={handleGetMovies} moviesTumbler={savedMoviesTumbler} moviesInputSearch={moviesInputSearch} handleGetMoviesTumbler={handleGetMoviesTumbler} />
       {preloader && <Preloader />}
       {errorText && <div className="saved-movies__text-error">{errorText}</div>}
       {!preloader && !errorText && movies !== null && (
-        <MoviesCardList moviesRemains={[]} savedMoviesToggle={savedMoviesToggle} movies={moviesShowed} />
+        <MoviesCardList moviesRemains={[]} savedMoviesToggle={savedMoviesToggle} movies={movies} />
       )}
     </div>
   );

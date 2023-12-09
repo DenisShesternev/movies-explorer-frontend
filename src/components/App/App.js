@@ -23,6 +23,22 @@ function App() {
     const { pathname } = useLocation();
     const navigate = useNavigate();
 
+    function checkToken() {
+        const jwt = localStorage.getItem('jwt')
+        if (jwt) {
+            MainApi.getToken(jwt).then((res) => {
+                if (res) {
+                    setLoggedIn(true)
+                    navigate(pathname)
+                }
+            }).catch((err) => console.log(err)
+            )
+        }
+        else {
+            onSignOut()
+        }
+    };
+
     function getUserInfo() {
         MainApi.getUserInfo()
             .then((data) => {
@@ -78,12 +94,19 @@ function App() {
         Token.removeToken();
         setLoggedIn(false);
         localStorage.removeItem('movies');
+        localStorage.removeItem('moviesShort');
         localStorage.removeItem('moviesTumbler');
         localStorage.removeItem('moviesInputSearch');
         localStorage.removeItem('savedMovies');
         localStorage.removeItem('savedMoviesTumbler');
+        localStorage.removeItem('savedMoviesShort');
+        localStorage.removeItem('savedMoviesSearch');
         localStorage.removeItem('savedMoviesInputSearch');
     }
+
+    useEffect(() => {
+        checkToken()
+    }, [])
 
     useEffect(() => {
         getUserInfo();

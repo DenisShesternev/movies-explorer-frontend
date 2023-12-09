@@ -1,14 +1,13 @@
 import './Profile.css';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 import mainApi from '../../utils/MainApi';
 
-const Profile = ({ onSignOut, openPopup }) => {
+const Profile = ({ onSignOut, isLoading }) => {
   const currentUser = useContext(CurrentUserContext);
   const [name, setName] = useState(currentUser.name);
-  const [lastName, setLastName] = useState(currentUser.name);
+  const [helloName, setHelloName] = useState(currentUser.name)
   const [email, setEmail] = useState(currentUser.email);
-  const [lastEmail, setLastEmail] = useState(currentUser.email);
   const [isVisibleButton, setVisibleButton] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -18,8 +17,9 @@ const Profile = ({ onSignOut, openPopup }) => {
     mainApi.updateUserInfo({ name, email })
       .then(() => {
         setVisibleButton(false);
-        setLastName(name);
-        setLastEmail(email);
+        setName(name)
+        setEmail(email)
+        setHelloName(name)
         setMessage('Данные успешно изменены.')
       })
       .catch(res => {
@@ -35,8 +35,7 @@ const Profile = ({ onSignOut, openPopup }) => {
   function handleNameChange(evt) {
     const value = evt.target.value;
     setName(value);
-
-    if (value !== lastName) {
+    if (value !== name) {
       setVisibleButton(true);
     } else {
       setVisibleButton(false);
@@ -46,18 +45,23 @@ const Profile = ({ onSignOut, openPopup }) => {
   function handleEmailChange(evt) {
     const value = evt.target.value;
     setEmail(value);
-
-    if (value !== lastEmail) {
+    if (value !== email) {
       setVisibleButton(true);
     } else {
       setVisibleButton(false);
     }
   }
 
+  useEffect(() => {
+   setName(currentUser.name);
+   setEmail(currentUser.email)
+   setHelloName(currentUser.name)
+  }, [currentUser]);
+
   return (
     <section className="profile">
       <form className="profile__form" onSubmit={handleSubmit}>
-        <h3 className="profile__greeting">Привет, {name}!</h3>
+        <h3 className="profile__greeting">Привет, {helloName}!</h3>
         <div className="profile__inputs">
           <p className="profile__text">Имя</p>
           <div className="profile__area profile__area_type_name">
@@ -67,11 +71,11 @@ const Profile = ({ onSignOut, openPopup }) => {
             <input className="profile__settings" value={email} onChange={handleEmailChange} />
           </div>
           <p className="profile__text">E-mail</p>
-        </div>
-        <p className="profile__text-error">
+          <p className="profile__text-error">
           {message}
         </p>
-        <button className="profile__button" disabled={!isVisibleButton}>
+        </div>
+        <button className="profile__button" disabled={!isVisibleButton || isLoading}>
           Редактировать
         </button>
         <button className="profile__link" type="button" onClick={onSignOut}>
