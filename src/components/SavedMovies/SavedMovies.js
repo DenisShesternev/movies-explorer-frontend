@@ -110,12 +110,10 @@ const SavedMovies = () => {
       .then((data) => {
         setMovies(data);
         localStorage.setItem('savedMovies', JSON.stringify(data));
-        console.log('почему руботаем тут?')
       })
       .catch((err) => {
         console.log(`Ошибка ${err}`)
       });
-
   }, []);
 
 
