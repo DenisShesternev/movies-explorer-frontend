@@ -167,7 +167,7 @@ const Movies = () => {
     if (localStorageMoviesTumbler === 'true') {
       setMoviesTumbler(localStorageMoviesTumbler === 'true');
       const filterData = JSON.parse(localStorageMoviesShort);
-      setMoviesShowed(filterData);
+      setMoviesShowed(filterData.splice(0, MoviesCount[0]));
       setMovies(filterData);
       setPreloader(false);
     }
