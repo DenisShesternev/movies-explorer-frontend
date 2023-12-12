@@ -2,7 +2,7 @@ import './Form.css';
 import { Link } from 'react-router-dom';
 import logo from '../../images/logo.svg';
 
-function Form({ onSubmit, isValid, title, children, submit, question, path, link, message }) {
+function Form({ onSubmit, isValid, title, children, submit, question, path, link, message, isLoading }) {
     return (
         <section className="form">
             <div className="form__container">
@@ -23,7 +23,7 @@ function Form({ onSubmit, isValid, title, children, submit, question, path, link
                     <p className="form__text-error">
                         {message}
                     </p>
-                    <button className={`form__button ${isValid ? "" : "form__button_disabled"}`} type="submit" disabled={!isValid}>
+                    <button className={`form__button ${isValid ? "" : "form__button_disabled"}`} type="submit" disabled={!isValid || isLoading}>
                         {submit}
                     </button>
                 </form>

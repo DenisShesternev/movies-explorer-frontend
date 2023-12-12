@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react';
 import SearchForm from '../SearchForm/SearchForm';
 import MoviesCardList from '../MoviesCardList/MoviesCardList';
 import Preloader from '../Preloader/Preloader';
-import moviesApi from '../../utils/MoviesApi';
+// import moviesApi from '../../utils/MoviesApi';
 import { DURATION_SHORTS } from '../../utils/constants';
 
-function Movies({ moviesSaved, savedMoviesToggle }) {
+function Movies({ moviesSaved, savedMoviesToggle, moviesBeat }) {
   const [preloader, setPreloader] = useState(false);
   const [errorText, setErrorText] = useState('');
   const [moviesInputSearch, setMoviesInputSearch] = useState('');
-  const [movies, setMovies] = useState(null);
+  const [movies, setMovies] = useState(moviesBeat);
   const [moviesTumbler, setMoviesTumbler] = useState(false);
   const [moviesShowed, setMoviesShowed] = useState(null);
 
@@ -67,8 +67,7 @@ function Movies({ moviesSaved, savedMoviesToggle }) {
 
     setErrorText('');
     setPreloader(true);
-    const data = await moviesApi.getMovies();
-    const filterData = data.filter(({ nameRU }) => nameRU.toLowerCase().includes(inputSearch.toLowerCase()));
+    const filterData = moviesBeat.filter(({ nameRU }) => nameRU.toLowerCase().includes(inputSearch.toLowerCase()));
     localStorage.setItem('movies', JSON.stringify(filterData));
     const filterDataShort = filterData.filter(({ duration }) => duration <= DURATION_SHORTS);
     localStorage.setItem('moviesShort', JSON.stringify(filterDataShort));
@@ -152,7 +151,8 @@ function Movies({ moviesSaved, savedMoviesToggle }) {
           moviesRemains={movies}
           movies={moviesShowed}
           savedMoviesToggle={savedMoviesToggle}
-          moviesSaved={moviesSaved} />
+          moviesSaved={moviesSaved} 
+          moviesBeat={moviesBeat}/>
       )}
     </div>
   );

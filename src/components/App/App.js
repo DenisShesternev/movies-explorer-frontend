@@ -13,6 +13,7 @@ import Profile from '../Profile/Profile';
 import PageNotFound from '../PageNotFound/PageNotFound';
 import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 import MainApi from '../../utils/MainApi';
+import MoviesApi from '../../utils/MoviesApi';
 import Token from '../../utils/token';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
     const [loggedIn, setLoggedIn] = useState(false);
 
     const [moviesSaved, setMoviesSaved] = useState(null);
+    const [moviesBeat, setMoviesBeat] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState('');
     const { pathname } = useLocation();
@@ -58,7 +60,7 @@ function App() {
                         if (pathname !== '/saved-movies') {
                             setMoviesSaved((moviesSaved) => moviesSaved.filter((item) => item.movieId !== movie.id));
                         } else {
-                        setMoviesSaved((moviesSaved) => moviesSaved.filter((item) => item.movieId !== movie.movieId));
+                            setMoviesSaved((moviesSaved) => moviesSaved.filter((item) => item.movieId !== movie.movieId));
                         }
                     })
             } catch (err) {
@@ -82,6 +84,7 @@ function App() {
     }
 
     function onRegister(formData) {
+        setIsLoading(true);
         MainApi.registerUser(formData)
             .then((res) => {
                 if (res._id) {
@@ -96,8 +99,12 @@ function App() {
                     setMessage('Что-то пошло не так! Ошибка регистрации.');
                 }
             })
+            .finally(() => {
+                setIsLoading(false)
+            })
     }
     function onLogin(formData) {
+        setIsLoading(true);
         MainApi.loginUser(formData)
             .then(({ token }) => {
                 if (token) {
@@ -115,6 +122,9 @@ function App() {
                 else if (res !== 'Ошибка: 401') {
                     setMessage('Что-то пошло не так! Ошибка авторизации.');
                 }
+            })
+            .finally(() => {
+                setIsLoading(false)
             })
     }
 
@@ -141,10 +151,31 @@ function App() {
     }, []);
 
     useEffect(() => {
+        if (pathname !== '/saved-movies') {
+            localStorage.removeItem('savedMoviesTumbler');
+            localStorage.removeItem('savedMoviesInputSearch');
+        }
         if (pathname === '/signin' || '/signup') {
             setMessage('');
         }
     }, [pathname]);
+
+    useEffect(() => {
+        if (loggedIn) {
+            if (localStorage.getItem('movies')) {
+                setMoviesBeat(JSON.parse(localStorage.getItem('movies')));
+            } else {
+                MoviesApi.getMovies()
+                    .then((movies) => {
+                        localStorage.setItem('movies', JSON.stringify(movies));
+                        setMoviesBeat(movies);
+                    })
+                  .catch((error) => {
+                    console.log(error);
+                  });
+            }
+        }
+    }, [loggedIn]);
 
     useEffect(() => {
         if (loggedIn) {
@@ -184,6 +215,7 @@ function App() {
                             isLoading={isLoading}
                             moviesSaved={moviesSaved}
                             savedMoviesToggle={savedMoviesToggle}
+                            moviesBeat={moviesBeat}
                         />
 
                     } />
@@ -201,7 +233,6 @@ function App() {
                             <ProtectedRoute
                                 loggedIn={loggedIn}
                                 component={Profile}
-                                isLoading={isLoading}
                                 onSignOut={onSignOut}
                             />
                         </>
@@ -210,7 +241,9 @@ function App() {
                         !loggedIn ? (
                             <Register
                                 onRegister={onRegister}
-                                message={message} />
+                                message={message} 
+                                isLoading={isLoading}
+                                />
                         ) : (
                             <Navigate to="/movies" />
                         )
@@ -219,7 +252,9 @@ function App() {
                         !loggedIn ? (
                             <Login
                                 onLogin={onLogin}
-                                message={message} />
+                                message={message} 
+                                isLoading={isLoading}
+                                />
                         ) : (
                             <Navigate to="/movies" />
                         )

@@ -2,7 +2,7 @@ import Form from '../Form/Form';
 import { useState } from 'react';
 import isEmail from 'validator/es/lib/isEmail';
 
-function Login({ onLogin, message }) {
+function Login({ onLogin, message, isLoading }) {
   const [inputValues, setInputValues] = useState({});
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(false);
@@ -35,11 +35,13 @@ function Login({ onLogin, message }) {
       onSubmit={handleSubmit}
       isValid={isValid}
       title="Рады видеть!"
-      submit="Войти"
+      submit={isLoading? 'Вход...' : 'Войти'}
       message={message}
       question="Ещё не зарегистрированы?"
       link="Регистрация"
-      path="/signup">
+      path="/signup"
+      isLoading={isLoading}
+      >
       <label className="form__item">
         <p className="form__item-text">E-mail</p>
         <input

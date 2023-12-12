@@ -3,11 +3,13 @@
   padding: 0;
 }
 
+/* заняться же больше нечем, лишь бы красивый эффект добавить  */
 .card__image {
   width: 360px;
   height: 201px;
   border-radius: 6px;
   object-fit: cover;
+  transition: 1s;
 }
 
 .card__element {
@@ -64,11 +66,12 @@
 }
 
 .card__image:hover {
-
+  scale: 1.05;
   cursor: pointer;
 }
 
 .card:hover .card__save {
+  scale: 1.05;
   display: contents;
   color: #000;
   text-align: center;

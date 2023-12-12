@@ -2,7 +2,7 @@ import Form from '../Form/Form';
 import { useState } from 'react';
 import isEmail from 'validator/es/lib/isEmail';
 
-function Register({ onRegister, message }) {
+function Register({ onRegister, message, isLoading }) {
   const [inputValues, setInputValues] = useState({});
   const [errors, setErrors] = useState({});
   const [isValid, setIsValid] = useState(false);
@@ -35,11 +35,13 @@ function Register({ onRegister, message }) {
       onSubmit={handleSubmit}
       isValid={isValid}
       title="Добро пожаловать!"
-      submit="Зарегистрироваться"
+      submit={isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
       message={message}
       question="Уже зарегистрированы?"
       link="Войти"
-      path="/signin">
+      path="/signin"
+      isLoading={isLoading}
+      >
       <label className="form__item">
         <p className="form__item-text">Имя</p>
         <input

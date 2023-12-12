@@ -3,8 +3,9 @@ import { useState, useContext, useEffect } from 'react';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext';
 import mainApi from '../../utils/MainApi';
 
-const Profile = ({ onSignOut, isLoading }) => {
+const Profile = ({ onSignOut}) => {
   const currentUser = useContext(CurrentUserContext);
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(currentUser.name);
   const [helloName, setHelloName] = useState(currentUser.name)
   const [email, setEmail] = useState(currentUser.email);
@@ -13,7 +14,8 @@ const Profile = ({ onSignOut, isLoading }) => {
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-// Изменяем имя приветствия только после успешного ответа сервера
+    setIsLoading(true);
+    // Изменяем имя приветствия только после успешного ответа сервера
     mainApi.updateUserInfo({ name, email })
       .then(() => {
         setVisibleButton(false);
@@ -29,7 +31,10 @@ const Profile = ({ onSignOut, isLoading }) => {
         else if (res === 'Ошибка: 409') {
           setMessage('Пользователь с таким email уже существует.');
         }
-      });
+      })
+      .finally(() => {
+        setIsLoading(false)
+    })
   }
 
   function handleNameChange(evt) {
@@ -53,10 +58,11 @@ const Profile = ({ onSignOut, isLoading }) => {
   }
 
   useEffect(() => {
-   setName(currentUser.name);
-   setEmail(currentUser.email)
-   setHelloName(currentUser.name)
+    setName(currentUser.name);
+    setEmail(currentUser.email)
+    setHelloName(currentUser.name)
   }, [currentUser]);
+
 
   return (
     <section className="profile">
@@ -65,20 +71,34 @@ const Profile = ({ onSignOut, isLoading }) => {
         <div className="profile__inputs">
           <p className="profile__text">Имя</p>
           <div className="profile__area profile__area_type_name">
-            <input className="profile__settings" value={name} onChange={handleNameChange} />
+            <input 
+            className="profile__settings" 
+            value={name} 
+            onChange={handleNameChange} 
+            />
           </div>
           <div className="profile__area profile__area_type_email">
-            <input className="profile__settings" value={email} onChange={handleEmailChange} />
+            <input 
+            className="profile__settings" 
+            value={email} 
+            onChange={handleEmailChange} 
+            />
           </div>
           <p className="profile__text">E-mail</p>
           <p className="profile__text-error">
-          {message}
-        </p>
+            {message}
+          </p>
         </div>
-        <button className="profile__button" disabled={!isVisibleButton || isLoading}>
-          Редактировать
+        <button 
+        className="profile__button" 
+        disabled={!isVisibleButton || isLoading}
+        >
+          {isLoading? 'Редактируем...': 'Редактировать'}
         </button>
-        <button className="profile__link" type="button" onClick={onSignOut}>
+        <button 
+        className="profile__link" 
+        type="button" 
+        onClick={onSignOut}>
           Выйти из аккаунта
         </button>
       </form>

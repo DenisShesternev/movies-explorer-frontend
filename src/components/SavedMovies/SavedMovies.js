@@ -84,18 +84,15 @@ function SavedMovies({ moviesSaved, savedMoviesToggle }) {
   }
 
   useEffect(() => {
-    localStorage.removeItem('savedMoviesInputSearch');
-    localStorage.removeItem('savedMoviesTumbler');
-    if (moviesSaved) {
-      localStorage.setItem('savedMovies', JSON.stringify(moviesSaved));
-      setMovies(moviesSaved);
-      if (localStorageSavedMoviesTumbler === 'true') {
-        handleGetMoviesTumbler(true)
-      }
-      if (localStorageMoviesInputSearch) {
-        handleGetMovies(localStorageMoviesInputSearch)
-      }
+    localStorage.setItem('savedMovies', JSON.stringify(moviesSaved));
+    setMovies(moviesSaved);
+    if (localStorageSavedMoviesTumbler === 'true') {
+      handleGetMoviesTumbler(true)
     }
+    if (localStorageMoviesInputSearch) {
+      handleGetMovies(localStorageMoviesInputSearch)
+    }
+
   }, [localStorageMoviesInputSearch, localStorageSavedMoviesTumbler, moviesSaved]);
 
 

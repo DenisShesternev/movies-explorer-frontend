@@ -2,7 +2,7 @@ import './PageNotFound.css'
 import { useNavigate } from 'react-router-dom'
 
 const PageNotFound = () => {
-    let navigate = useNavigate();
+    const navigate = useNavigate();
 
     return (
         <div className='not-found'>
