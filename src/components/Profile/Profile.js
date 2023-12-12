@@ -13,7 +13,7 @@ const Profile = ({ onSignOut, isLoading }) => {
 
   const handleSubmit = (evt) => {
     evt.preventDefault();
-
+// Изменяем имя приветствия только после успешного ответа сервера
     mainApi.updateUserInfo({ name, email })
       .then(() => {
         setVisibleButton(false);

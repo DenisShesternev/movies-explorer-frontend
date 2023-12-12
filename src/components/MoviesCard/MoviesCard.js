@@ -48,7 +48,7 @@ const MoviesCard = ({ movie, savedMoviesToggle, moviesSaved }) => {
             <button type="button" className="card__button card__button_delete" onClick={handleFavoriteDelete} />
           ) : (
             <button type="button" className={`card__button card__button${favorite ? '_active' : '_inactive'}`} onClick={handleFavoriteToogle}
-            > {favorite? '' : <h3 className='card__save'>Сохранить</h3> }
+            > {favorite ? '' : <h3 className='card__save'>Сохранить</h3>}
             </button>
           )}
 

@@ -18,6 +18,8 @@ import Token from '../../utils/token';
 function App() {
     const [currentUser, setCurrentUser] = useState({});
     const [loggedIn, setLoggedIn] = useState(false);
+
+    const [moviesSaved, setMoviesSaved] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState('');
     const { pathname } = useLocation();
@@ -38,6 +40,32 @@ function App() {
             onSignOut()
         }
     };
+
+    function savedMoviesToggle(movie, favorite) {
+        if (favorite) {
+            try {
+                MainApi.addMovies(movie)
+                    .then((newMovie) => {
+                        setMoviesSaved([...moviesSaved, newMovie]);
+                    })
+            } catch (err) {
+                console.log('Во время добавления фильма произошла ошибка.');
+            }
+        } else {
+            try {
+                MainApi.deleteMovies(movie._id)
+                    .then(() => {
+                        if (pathname !== '/saved-movies') {
+                            setMoviesSaved((moviesSaved) => moviesSaved.filter((item) => item.movieId !== movie.id));
+                        } else {
+                        setMoviesSaved((moviesSaved) => moviesSaved.filter((item) => item.movieId !== movie.movieId));
+                        }
+                    })
+            } catch (err) {
+                console.log('Во время удаления фильма произошла ошибка.');
+            }
+        }
+    }
 
     function getUserInfo() {
         MainApi.getUserInfo()
@@ -118,6 +146,25 @@ function App() {
         }
     }, [pathname]);
 
+    useEffect(() => {
+        if (loggedIn) {
+            MainApi.getMovies()
+                .then((data) => {
+                    setMoviesSaved(data)
+                    localStorage.setItem('savedMovies', JSON.stringify(data));
+                })
+                .catch((err) => {
+                    console.log(`Что-то пошло не так! ${err}`);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
+    }, [loggedIn]);
+
+    useEffect(() => {
+        loggedIn && localStorage.setItem('savedMovies', JSON.stringify(moviesSaved));
+    }, [loggedIn, moviesSaved]);
 
     return (
         <CurrentUserContext.Provider value={currentUser}>
@@ -135,6 +182,8 @@ function App() {
                             loggedIn={loggedIn}
                             component={Movies}
                             isLoading={isLoading}
+                            moviesSaved={moviesSaved}
+                            savedMoviesToggle={savedMoviesToggle}
                         />
 
                     } />
@@ -143,6 +192,8 @@ function App() {
                             loggedIn={loggedIn}
                             component={SavedMovies}
                             isLoading={isLoading}
+                            moviesSaved={moviesSaved}
+                            savedMoviesToggle={savedMoviesToggle}
                         />
                     } />
                     <Route exact path="/profile" element={

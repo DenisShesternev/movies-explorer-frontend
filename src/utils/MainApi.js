@@ -70,12 +70,24 @@ class MainApi {
         return fetch(`${this._url}/movies`, {
             method: 'POST',
             headers: this._headers,
-            body: JSON.stringify(movie),
+            body: JSON.stringify({
+                image: 'https://api.nomoreparties.co' + movie.image.url,
+                trailerLink: movie.trailerLink,
+                thumbnail: 'https://api.nomoreparties.co' + movie.image.url,
+                movieId: movie.id,
+                country: movie.country,
+                director: movie.director,
+                duration: movie.duration,
+                year: movie.year,
+                description: movie.description,
+                nameRU: movie.nameRU,
+                nameEN: movie.nameEN,
+            }),
         }).then(this._checkResponse);
     }
 
-    deleteMovies(movieId) {
-        return fetch(`${this._url}/movies/${movieId}`, {
+    deleteMovies(id) {
+        return fetch(`${this._url}/movies/${id}`, {
             method: 'DELETE',
             headers: this._headers,
         }).then(this._checkResponse);
