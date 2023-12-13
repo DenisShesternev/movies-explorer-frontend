@@ -6,13 +6,13 @@ const Portfolio = () => {
       <h3 className="portfolio__title">Портфолио</h3>
       <ul className="portfolio__list">
         <li className="portfolio__list-item">
-          <a className="portfolio__link" href="#1" target="_blank" rel="noreferrer">Статичный сайт</a>
+          <a className="portfolio__link" href="https://denisshesternev.github.io/how-to-learn/" target="_blank" rel="noreferrer">Статичный сайт</a>
         </li>
         <li className="portfolio__list-item">
-          <a className="portfolio__link" href="#2" target="_blank" rel="noreferrer">Адаптивный сайт</a>
+          <a className="portfolio__link" href="https://denisshesternev.github.io/russian-travel/" target="_blank" rel="noreferrer">Адаптивный сайт</a>
         </li>
         <li className="portfolio__list-item">
-          <a className="portfolio__link" href="#3" target="_blank" rel="noreferrer">Одностраничное приложение</a>
+          <a className="portfolio__link" href="https://shesternev.denisstudent.nomoredomainsicu.ru/" target="_blank" rel="noreferrer">Одностраничное приложение</a>
         </li>
       </ul>
     </section>

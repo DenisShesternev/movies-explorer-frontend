@@ -3,11 +3,13 @@
   padding: 0;
 }
 
+/* заняться же больше нечем, лишь бы красивый эффект добавить  */
 .card__image {
   width: 360px;
   height: 201px;
   border-radius: 6px;
   object-fit: cover;
+  transition: 1s;
 }
 
 .card__element {
@@ -64,11 +66,12 @@
 }
 
 .card__image:hover {
-
+  scale: 1.05;
   cursor: pointer;
 }
 
 .card:hover .card__save {
+  scale: 1.05;
   display: contents;
   color: #000;
   text-align: center;
@@ -79,21 +82,22 @@
   line-height: 9px;
 }
 
-.card:hover .card__button {
-  height: 21px;
-  width: 72px;
-  opacity: .7;
-  cursor: pointer;
-  border-radius: 30px;
+.card:hover .card__button_inactive {
   background: #F9F9F9;
 }
 
 .card__button_inactive {
   background: none;
+  height: 21px;
+  width: 72px;
+  opacity: .7;
+  cursor: pointer;
+  border-radius: 30px;
 }
 
 .card__button_active {
   background: #f9f9f9 url(../../images/card__button_active.svg) center no-repeat;
+  cursor: pointer;
 }
 
 .card__button_delete {
@@ -104,6 +108,7 @@
   background: #f9f9f9 url(../../images/card__button_delete.png) center no-repeat;
   width: 21px;
   height: 21px;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 800px) {
